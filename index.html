@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora absolut</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        input, button, select {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+        }
+        .produto-container {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Calcular produtos</h1>
+	<h5>By: João Delacroix</h5>
+
+    <div id="produtos-container">
+        <div class="produto-container">
+            <label for="produto-0">Escolha o produto:</label>
+            <select id="produto-0" class="produto" onchange="atualizarValor(0)">
+                <option value="capuz">Capuz (30.000 - 60.000)</option>
+                <option value="algemas">Algemas (5.000 - 10.000)</option>
+                <option value="chave-algema">Chave de Algemas (10.000 - 20.000)</option>
+                <option value="kit-sequestro">Kit Sequestro (100.000)</option>
+                <option value="masterpick">Masterpick (45.000 - 900.000)</option>
+                <option value="blacklist">Blacklist (300.000 - 600.000)</option>
+                <option value="mochilax">Mochilax (100.000 - 200.000)</option>
+                <option value="ilicitos">Ilícitos (5.000 - 10.000)</option>
+                <option value="dinheiro-sujo">Dinheiro Sujo</option>
+            </select>
+
+            <!-- Campos para outros produtos -->
+            <div id="outros-produtos-0" class="outros-produtos">
+                <input type="number" id="valor-0" placeholder="Digite o valor por unidade" />
+                <input type="number" id="quantidade-0" placeholder="Digite a quantidade de itens" />
+            </div>
+
+            <!-- Campo específico para dinheiro sujo -->
+            <div id="dinheiro-sujo-0" class="dinheiro-sujo" style="display:none;">
+                <input type="number" id="valor-dinheiro-sujo-0" placeholder="Digite o valor do dinheiro sujo" />
+                <input type="number" id="porcentagem-dinheiro-sujo-0" placeholder="Digite a % de desconto no dinheiro sujo" />
+            </div>
+        </div>
+    </div>
+
+    <button onclick="adicionarProduto()">Adicionar Produto</button>
+    <button onclick="calcularDesconto()">Calcular</button>
+    <button onclick="limparDados()">Limpar</button>
+
+    <p id="resultado"></p>
+
+    <script>
+        let produtoCounter = 1;
+        const valoresProdutos = {
+            capuz: {min: 30000, max: 60000},
+            algemas: {min: 5000, max: 10000},
+            "chave-algema": {min: 10000, max: 20000},
+            "kit-sequestro": {min: 100000, max: 100000},
+            masterpick: {min: 45000, max: 900000},
+            blacklist: {min: 300000, max: 600000},
+            mochilax: {min: 100000, max: 200000},
+            ilicitos: {min: 5000, max: 10000}
+        };
+
+        function atualizarValor(index) {
+            const produtoSelecionado = document.getElementById(`produto-${index}`).value;
+            const outrosProdutosDiv = document.getElementById(`outros-produtos-${index}`);
+            const dinheiroSujoDiv = document.getElementById(`dinheiro-sujo-${index}`);
+
+            if (produtoSelecionado === "dinheiro-sujo") {
+                outrosProdutosDiv.style.display = "none";
+                dinheiroSujoDiv.style.display = "block";
+            } else {
+                const { min, max } = valoresProdutos[produtoSelecionado];
+                document.getElementById(`valor-${index}`).placeholder = `Valor entre ${min} e ${max}`;
+                outrosProdutosDiv.style.display = "block";
+                dinheiroSujoDiv.style.display = "none";
+            }
+        }
+
+        function adicionarProduto() {
+            const container = document.getElementById('produtos-container');
+            const newProductHTML = `
+                <div class="produto-container">
+                    <label for="produto-${produtoCounter}">Escolha o produto:</label>
+                    <select id="produto-${produtoCounter}" class="produto" onchange="atualizarValor(${produtoCounter})">
+                        <option value="capuz">Capuz (30.000 - 60.000)</option>
+                        <option value="algemas">Algemas (5.000 - 10.000)</option>
+                        <option value="chave-algema">Chave de Algemas (10.000 - 20.000)</option>
+                        <option value="kit-sequestro">Kit Sequestro (100.000)</option>
+                        <option value="masterpick">Masterpick (45.000 - 900.000)</option>
+                        <option value="blacklist">Blacklist (300.000 - 600.000)</option>
+                        <option value="mochilax">Mochilax (100.000 - 200.000)</option>
+                        <option value="ilicitos">Ilícitos (5.000 - 10.000)</option>
+                        <option value="dinheiro-sujo">Dinheiro Sujo</option>
+                    </select>
+
+                    <div id="outros-produtos-${produtoCounter}" class="outros-produtos">
+                        <input type="number" id="valor-${produtoCounter}" placeholder="Digite o valor por unidade" />
+                        <input type="number" id="quantidade-${produtoCounter}" placeholder="Digite a quantidade de itens" />
+                    </div>
+
+                    <div id="dinheiro-sujo-${produtoCounter}" class="dinheiro-sujo" style="display:none;">
+                        <input type="number" id="valor-dinheiro-sujo-${produtoCounter}" placeholder="Digite o valor do dinheiro sujo" />
+                        <input type="number" id="porcentagem-dinheiro-sujo-${produtoCounter}" placeholder="Digite a % de desconto no dinheiro sujo" />
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', newProductHTML);
+            produtoCounter++;
+        }
+
+        function calcularDesconto() {
+            let total = 0;
+
+            for (let i = 0; i < produtoCounter; i++) {
+                const produtoSelecionado = document.getElementById(`produto-${i}`).value;
+
+                if (produtoSelecionado === "dinheiro-sujo") {
+                    const valorDinheiroSujo = parseFloat(document.getElementById(`valor-dinheiro-sujo-${i}`).value);
+                    const porcentagemDesconto = parseFloat(document.getElementById(`porcentagem-dinheiro-sujo-${i}`).value);
+
+                    if (isNaN(valorDinheiroSujo) || isNaN(porcentagemDesconto)) {
+                        document.getElementById("resultado").innerText = "Por favor, insira valores válidos.";
+                        return;
+                    }
+
+                    const desconto = valorDinheiroSujo * (porcentagemDesconto / 100);
+                    total += valorDinheiroSujo - desconto;
+                } else {
+                    const { min, max } = valoresProdutos[produtoSelecionado];
+                    const valor = parseFloat(document.getElementById(`valor-${i}`).value);
+                    const quantidade = parseFloat(document.getElementById(`quantidade-${i}`).value);
+
+                    if (isNaN(valor) || isNaN(quantidade) || valor < min || valor > max) {
+                        document.getElementById("resultado").innerText = `O valor por unidade deve estar entre ${min} e ${max}.`;
+                        return;
+                    }
+
+                    total += valor * quantidade;
+                }
+            }
+
+            document.getElementById("resultado").innerText = `O valor total é: ${total.toFixed(2)}`;
+        }
+
+        function limparDados() {
+            document.getElementById("produtos-container").innerHTML = `
+                <div class="produto-container">
+                    <label for="produto-0">Escolha o produto:</label>
+                    <select id="produto-0" class="produto" onchange="atualizarValor(0)">
+                        <option value="capuz">Capuz (30.000 - 60.000)</option>
+                        <option value="algemas">Algemas (5.000 - 10.000)</option>
+                        <option value="chave-algema">Chave de Algemas (10.000 - 20.000)</option>
+                        <option value="kit-sequestro">Kit Sequestro (100.000)</option>
+                        <option value="masterpick">Masterpick (45.000 - 900.000)</option>
+                        <option value="blacklist">Blacklist (300.000 - 600.000)</option>
+                        <option value="mochilax">Mochilax (100.000 - 200.000)</option>
+                        <option value="ilicitos">Ilícitos (5.000 - 10.000)</option>
+                        <option value="dinheiro-sujo">Dinheiro Sujo</option>
+                    </select>
+
+                    <div id="outros-produtos-0" class="outros-produtos">
+                        <input type="number" id="valor-0" placeholder="Digite o valor por unidade" />
+                        <input type="number" id="quantidade-0" placeholder="Digite a quantidade de itens" />
+                    </div>
+
+                    <div id="dinheiro-sujo-0" class="dinheiro-sujo" style="display:none;">
+                        <input type="number" id="valor-dinheiro-sujo-0" placeholder="Digite o valor do dinheiro sujo" />
+                        <input type="number" id="porcentagem-dinheiro-sujo-0" placeholder="Digite a % de desconto no dinheiro sujo" />
+                    </div>
+                </div>
+            `;
+            document.getElementById("resultado").innerText = "";
+            produtoCounter = 1;
+        }
+    </script>
+</body>
+</html>
