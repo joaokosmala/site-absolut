@@ -5,7 +5,7 @@ Aqui você irá encontrar um site que serve de calculadora de vendas para uma fa
 ## Informações importantes:
 
 Lembre-se você pode hospedar esse site em: [netlify.app](https://www.netlify.com)
-Criar um token e anexar no arquivo config.json
+
 
 ## Entre em contato
 
